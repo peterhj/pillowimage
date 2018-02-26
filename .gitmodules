@@ -1,0 +1,4 @@
+[submodule "pillow-simd"]
+	path = pillow-simd
+	url = https://github.com/peterhj/pillow-simd.git
+	branch = bootstrap-imaging
