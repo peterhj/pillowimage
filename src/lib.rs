@@ -17,6 +17,7 @@ lazy_static! {
   static ref MODE_F:        CString = CString::new("F").unwrap();
   static ref MODE_RGB:      CString = CString::new("RGB").unwrap();
   static ref MODE_RGBA:     CString = CString::new("RGBA").unwrap();
+  static ref MODE_RGBX:     CString = CString::new("RGBX").unwrap();
   static ref MODE_CMYK:     CString = CString::new("CMYK").unwrap();
   static ref MODE_YCBCR:    CString = CString::new("YCbCr").unwrap();
   static ref MODE_LAB:      CString = CString::new("LAB").unwrap();
@@ -58,6 +59,7 @@ pub enum PILMode {
   F,
   RGB,
   RGBA,
+  RGBX,
   CMYK,
   YCbCr,
   LAB,
@@ -73,6 +75,7 @@ impl PILMode {
       PILMode::F        => MODE_F.as_c_str().as_ptr(),
       PILMode::RGB      => MODE_RGB.as_c_str().as_ptr(),
       PILMode::RGBA     => MODE_RGBA.as_c_str().as_ptr(),
+      PILMode::RGBX     => MODE_RGBX.as_c_str().as_ptr(),
       PILMode::CMYK     => MODE_CMYK.as_c_str().as_ptr(),
       PILMode::YCbCr    => MODE_YCBCR.as_c_str().as_ptr(),
       PILMode::LAB      => MODE_LAB.as_c_str().as_ptr(),
@@ -131,27 +134,27 @@ impl PILImage {
   }
 
   pub fn width(&self) -> i32 {
-    unsafe { (*self.ptr).xsize }
+    unsafe { (&*self.ptr).xsize }
   }
 
   pub fn height(&self) -> i32 {
-    unsafe { (*self.ptr).ysize }
+    unsafe { (&*self.ptr).ysize }
   }
 
   pub fn pixel_type(&self) -> PILType {
-    PILType::from_raw(unsafe { (*self.ptr).type_ } as u32)
+    PILType::from_raw(unsafe { (&*self.ptr).type_ } as u32)
   }
 
   pub fn pixel_channels(&self) -> i32 {
-    unsafe { (*self.ptr).bands }
+    unsafe { (&*self.ptr).bands }
   }
 
   pub fn pixel_size_bytes(&self) -> i32 {
-    unsafe { (*self.ptr).pixelsize }
+    unsafe { (&*self.ptr).pixelsize }
   }
 
   pub fn line_size_bytes(&self) -> i32 {
-    unsafe { (*self.ptr).linesize }
+    unsafe { (&*self.ptr).linesize }
   }
 
   pub fn resample(&self, new_xdim: i32, new_ydim: i32, filter: PILFilter) -> Self {
