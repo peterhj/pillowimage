@@ -6,6 +6,7 @@ use ffi::*;
 use std::ffi::{CString};
 use std::os::raw::{c_char};
 use std::ptr::{null_mut};
+use std::slice::{from_raw_parts, from_raw_parts_mut};
 
 pub mod ffi;
 
@@ -131,6 +132,22 @@ impl PILImage {
     PILImage{
       ptr:  raw_im,
     }
+  }
+
+  pub unsafe fn as_mut_ptr(&mut self) -> Imaging {
+    self.ptr
+  }
+
+  pub fn raster_line(&self, y: i32) -> &[u8] {
+    assert!(y >= 0);
+    assert!(y < self.height());
+    unsafe { from_raw_parts(((&*self.ptr).image as *const u8).offset(y as _), self.pixel_size_bytes() as usize * self.width() as usize) }
+  }
+
+  pub fn raster_line_mut(&mut self, y: i32) -> &mut [u8] {
+    assert!(y >= 0);
+    assert!(y < self.height());
+    unsafe { from_raw_parts_mut(((&mut *self.ptr).image as *mut u8).offset(y as _), self.pixel_size_bytes() as usize * self.width() as usize) }
   }
 
   pub fn width(&self) -> i32 {
