@@ -114,6 +114,7 @@ fn main() {
     .whitelist_function("ImagingSectionLeave")
     .whitelist_function("ImagingNew")
     .whitelist_function("ImagingNew2")
+    //.whitelist_function("ImagingNewBlock")
     .whitelist_function("ImagingDelete")
     //.whitelist_function("ImagingAccessNew")
     //.whitelist_function("_ImagingAccessDelete")
