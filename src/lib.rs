@@ -133,6 +133,20 @@ impl PILImage {
     }
   }
 
+  pub fn to_vec(&self) -> Vec<u8> {
+    let mut flatv = Vec::with_capacity(3 * self.width() as usize * self.height() as usize);
+    for y in 0 .. self.height() {
+      let line = self.raster_line(y);
+      for x in 0 .. self.width() {
+        flatv.push(line[4 * x as usize]);
+        flatv.push(line[4 * x as usize + 1]);
+        flatv.push(line[4 * x as usize + 2]);
+      }
+    }
+    assert_eq!(flatv.len(), 3 * self.width() as usize * self.height() as usize);
+    flatv
+  }
+
   pub unsafe fn as_mut_ptr(&mut self) -> Imaging {
     self.ptr
   }
@@ -140,14 +154,14 @@ impl PILImage {
   pub fn raster_line(&self, y: i32) -> &[u8] {
     assert!(y >= 0);
     assert!(y < self.height());
-    assert_eq!(unsafe { (&*self.ptr).linesize }, self.pixel_size_bytes() * self.width());
+    assert_eq!(self.line_size_bytes(), self.pixel_size_bytes() * self.width());
     unsafe { from_raw_parts(*((&*self.ptr).image).offset(y as _) as *mut u8, self.pixel_size_bytes() as usize * self.width() as usize) }
   }
 
   pub fn raster_line_mut(&mut self, y: i32) -> &mut [u8] {
     assert!(y >= 0);
     assert!(y < self.height());
-    assert_eq!(unsafe { (&*self.ptr).linesize }, self.pixel_size_bytes() * self.width());
+    assert_eq!(self.line_size_bytes(), self.pixel_size_bytes() * self.width());
     unsafe { from_raw_parts_mut(*((&mut *self.ptr).image).offset(y as _) as *mut u8, self.pixel_size_bytes() as usize * self.width() as usize) }
   }
 
