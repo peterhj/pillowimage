@@ -154,15 +154,15 @@ impl PILImage {
   pub fn raster_line(&self, y: i32) -> &[u8] {
     assert!(y >= 0);
     assert!(y < self.height());
-    assert_eq!(self.line_size_bytes(), self.pixel_size_bytes() * self.width());
-    unsafe { from_raw_parts(*((&*self.ptr).image).offset(y as _) as *mut u8, self.pixel_size_bytes() as usize * self.width() as usize) }
+    assert!(self.line_size_bytes() >= self.pixel_size_bytes() * self.width());
+    unsafe { from_raw_parts(*((&*self.ptr).image).offset(y as _) as *mut u8, self.line_size_bytes() as usize) }
   }
 
   pub fn raster_line_mut(&mut self, y: i32) -> &mut [u8] {
     assert!(y >= 0);
     assert!(y < self.height());
-    assert_eq!(self.line_size_bytes(), self.pixel_size_bytes() * self.width());
-    unsafe { from_raw_parts_mut(*((&mut *self.ptr).image).offset(y as _) as *mut u8, self.pixel_size_bytes() as usize * self.width() as usize) }
+    assert!(self.line_size_bytes() >= self.pixel_size_bytes() * self.width());
+    unsafe { from_raw_parts_mut(*((&mut *self.ptr).image).offset(y as _) as *mut u8, self.line_size_bytes() as usize) }
   }
 
   pub fn width(&self) -> i32 {
