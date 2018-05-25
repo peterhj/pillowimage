@@ -134,17 +134,54 @@ impl PILImage {
   }
 
   pub fn to_vec(&self) -> Vec<u8> {
-    let mut flatv = Vec::with_capacity(3 * self.width() as usize * self.height() as usize);
-    for y in 0 .. self.height() {
+    let h = self.height();
+    let w = self.width();
+    let c = self.pixel_channels();
+    let px_sz = self.pixel_size_bytes();
+    let mut flatv = Vec::with_capacity(self.pixel_channels() as usize * self.width() as usize * self.height() as usize);
+    for y in 0 .. h {
       let line = self.raster_line(y);
-      for x in 0 .. self.width() {
-        flatv.push(line[4 * x as usize]);
-        flatv.push(line[4 * x as usize + 1]);
-        flatv.push(line[4 * x as usize + 2]);
+      for x in 0 .. w {
+        for k in 0 .. c {
+          flatv.push(line[(px_sz * x + k) as usize]);
+        }
       }
     }
-    assert_eq!(flatv.len(), 3 * self.width() as usize * self.height() as usize);
+    assert_eq!(flatv.len(), self.pixel_channels() as usize * self.width() as usize * self.height() as usize);
     flatv
+  }
+
+  pub fn dump_pixels(&self, buf: &mut [u8]) {
+    let h = self.height();
+    let w = self.width();
+    let c = self.pixel_channels();
+    let px_sz = self.pixel_size_bytes();
+    let width_sz = c * w;
+    for y in 0 .. h {
+      let line = self.raster_line(y);
+      for x in 0 .. w {
+        for k in 0 .. c {
+          let line_off = (px_sz * x + k) as usize;
+          buf[(y * width_sz) as usize + line_off] = line[line_off];
+        }
+      }
+    }
+  }
+
+  pub fn dump_planes(&self, buf: &mut [u8]) {
+    let h = self.height();
+    let w = self.width();
+    let c = self.pixel_channels();
+    let px_sz = self.pixel_size_bytes();
+    for y in 0 .. h {
+      let line = self.raster_line(y);
+      for x in 0 .. w {
+        for k in 0 .. c {
+          let line_off = (px_sz * x + k) as usize;
+          buf[((k * h + y) * w + x) as usize] = line[line_off];
+        }
+      }
+    }
   }
 
   pub unsafe fn as_mut_ptr(&mut self) -> Imaging {
