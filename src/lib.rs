@@ -128,6 +128,7 @@ impl PILImage {
   }
 
   pub unsafe fn from_raw(raw_im: Imaging) -> Self {
+    assert!(!raw_im.is_null());
     PILImage{
       ptr:  raw_im,
     }
@@ -162,7 +163,7 @@ impl PILImage {
       for x in 0 .. w {
         for k in 0 .. c {
           let line_off = (px_sz * x + k) as usize;
-          buf[(y * width_sz) as usize + line_off] = line[line_off];
+          buf[((y * width_sz) + (x * c) + k) as usize] = line[line_off];
         }
       }
     }
@@ -226,13 +227,15 @@ impl PILImage {
     unsafe { (&*self.ptr).linesize }
   }
 
+  pub fn crop(&self, x0: i32, y0: i32, x1: i32, y1: i32) -> Self {
+    unsafe { PILImage::from_raw(ImagingCrop(self.ptr, x0, y0, x1, y1)) }
+  }
+
   pub fn resample(&self, new_xdim: i32, new_ydim: i32, filter: PILFilter) -> Self {
     self.resample_crop(new_xdim, new_ydim, filter, [0.0, 0.0, new_xdim as _, new_ydim as _])
   }
 
   pub fn resample_crop(&self, new_xdim: i32, new_ydim: i32, filter: PILFilter, mut new_crop: [f32; 4]) -> Self {
-    PILImage{
-      ptr:  unsafe { ImagingResample(self.ptr, new_xdim, new_ydim, filter.to_raw() as i32, (&mut new_crop).as_mut_ptr()) },
-    }
+    unsafe { PILImage::from_raw(ImagingResample(self.ptr, new_xdim, new_ydim, filter.to_raw() as i32, (&mut new_crop).as_mut_ptr())) }
   }
 }

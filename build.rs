@@ -118,6 +118,7 @@ fn main() {
     .whitelist_function("ImagingDelete")
     //.whitelist_function("ImagingAccessNew")
     //.whitelist_function("_ImagingAccessDelete")
+    .whitelist_function("ImagingCrop")
     .whitelist_function("ImagingFlipLeftRight")
     .whitelist_function("ImagingFlipTopBottom")
     .whitelist_function("ImagingRotate90")
