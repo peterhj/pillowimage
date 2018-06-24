@@ -231,6 +231,11 @@ impl PILImage {
     unsafe { PILImage::from_raw(ImagingCrop(self.ptr, x0, y0, x1, y1)) }
   }
 
+  pub fn flip_left_right(&self, mut out: PILImage) -> Self {
+    unsafe { ImagingFlipLeftRight(out.as_mut_ptr(), self.ptr); }
+    out
+  }
+
   pub fn resample(&self, new_xdim: i32, new_ydim: i32, filter: PILFilter) -> Self {
     self.resample_crop(new_xdim, new_ydim, filter, [0.0, 0.0, new_xdim as _, new_ydim as _])
   }
