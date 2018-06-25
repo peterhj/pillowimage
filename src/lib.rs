@@ -111,7 +111,7 @@ pub struct PILImage {
 }
 
 unsafe impl Send for PILImage {}
-//unsafe impl Sync for PILImage {}
+unsafe impl Sync for PILImage {}
 
 impl Drop for PILImage {
   fn drop(&mut self) {
