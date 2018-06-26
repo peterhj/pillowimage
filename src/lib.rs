@@ -134,6 +134,10 @@ impl PILImage {
     }
   }
 
+  pub unsafe fn as_mut_ptr(&mut self) -> Imaging {
+    self.ptr
+  }
+
   pub fn to_vec(&self) -> Vec<u8> {
     let h = self.height();
     let w = self.width();
@@ -157,13 +161,12 @@ impl PILImage {
     let w = self.width();
     let c = self.pixel_channels();
     let px_sz = self.pixel_size_bytes();
-    let width_sz = c * w;
     for y in 0 .. h {
       let line = self.raster_line(y);
       for x in 0 .. w {
         for k in 0 .. c {
           let line_off = (px_sz * x + k) as usize;
-          buf[((y * width_sz) + (x * c) + k) as usize] = line[line_off];
+          buf[((y * w + x) * c + k) as usize] = line[line_off];
         }
       }
     }
@@ -183,10 +186,6 @@ impl PILImage {
         }
       }
     }
-  }
-
-  pub unsafe fn as_mut_ptr(&mut self) -> Imaging {
-    self.ptr
   }
 
   pub fn raster_line(&self, y: i32) -> &[u8] {
