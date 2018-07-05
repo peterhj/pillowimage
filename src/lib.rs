@@ -121,9 +121,21 @@ impl Drop for PILImage {
 }
 
 impl PILImage {
-  pub fn new(mode: PILMode, xdim: i32, ydim: i32) -> Self {
+  pub unsafe fn new(mode: PILMode, xdim: i32, ydim: i32) -> Self {
+    //let ptr = unsafe { ImagingNewBlock(mode.to_raw(), xdim, ydim) };
+    let ptr = unsafe { ImagingNewDirty(mode.to_raw(), xdim, ydim) };
+    assert!(!ptr.is_null());
     PILImage{
-      ptr:  unsafe { ImagingNew(mode.to_raw(), xdim, ydim) },
+      ptr:  ptr,
+    }
+  }
+
+  pub unsafe fn _new_mode(raw_mode: *const c_char, xdim: i32, ydim: i32) -> Self {
+    //let ptr = unsafe { ImagingNewBlock(raw_mode, xdim, ydim) };
+    let ptr = unsafe { ImagingNewDirty(raw_mode, xdim, ydim) };
+    assert!(!ptr.is_null());
+    PILImage{
+      ptr:  ptr,
     }
   }
 
@@ -136,6 +148,15 @@ impl PILImage {
 
   pub unsafe fn as_mut_ptr(&mut self) -> Imaging {
     self.ptr
+  }
+
+  pub unsafe fn _raw_mode(&self) -> *const c_char {
+    self._mode()
+  }
+
+  pub unsafe fn _mode(&self) -> *const c_char {
+    assert!(!self.ptr.is_null());
+    (*self.ptr).mode.as_ptr()
   }
 
   pub fn to_vec(&self) -> Vec<u8> {
